@@ -1,6 +1,9 @@
 from pathlib import Path
 from ir import InMemoryInvertedIndex, LemmaTokenizer
 
+RESOURCE_PATH = Path("./resources")
+
+
 if __name__ == "__main__":
     tokenizer = LemmaTokenizer({})
     docs = [
@@ -13,12 +16,21 @@ if __name__ == "__main__":
     inverted_index = InMemoryInvertedIndex(docs, tokenizer)
     print(inverted_index._terms)
     print(inverted_index.search("july sales rise"))
-    tokenizer = LemmaTokenizer.load_from_file(Path("./lemmatization-es.txt"))
+    tokenizer = LemmaTokenizer.load_from_file(RESOURCE_PATH / "lemmatization-es.txt")
     docs = []
-    for path in Path("./documents").glob("*.txt"):
+    for path in (RESOURCE_PATH / "documents").glob("*.txt"):
         with open(path, "r") as doc:
             docs.append(doc.read())
 
     inverted_index = InMemoryInvertedIndex(docs, tokenizer)
-    query = input("Ingresar búsqueda: ")
-    print(inverted_index.search(query))
+    while True:
+        query = input("Ingresar búsqueda: ")
+        results = inverted_index.search(query)
+        print(results)
+        query = input("Mostrar texto? (S/s)")
+        if query.lower().strip() == "s":
+            for i, result in enumerate(results, start=1):
+                print("=" * 79)
+                print(f"Resultado {i}")
+                print("=" * 79)
+                print(docs[result])
